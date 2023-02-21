@@ -32,3 +32,18 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex);
 
 ## 3. 死锁
 ### 死锁几种情况：
+- 加锁后忘记解锁
+- 重复加锁
+
+## 4. 读写锁
+读写锁是互斥锁的`升级版`，在做读操作的时候可以提高程序的执行效率。如果所有的线程都是做读操作, 那么`读是并行的，写是串行的，写锁比读锁的优先级高。`。
+```
+pthread_rwlock_t rwlock;
+
+// 初始化读写锁
+int pthread_rwlock_init(pthread_rwlock_t *restrict rwlock,
+           const pthread_rwlockattr_t *restrict attr);
+// 释放读写锁占用的系统资源
+int pthread_rwlock_destroy(pthread_rwlock_t *rwlock);
+
+```
