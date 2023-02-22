@@ -47,3 +47,42 @@ int pthread_rwlock_init(pthread_rwlock_t *restrict rwlock,
 int pthread_rwlock_destroy(pthread_rwlock_t *rwlock);
 
 ```
+
+## 5.条件变量
+### 5.1 函数原型
+```
+#include <pthread.h>
+pthread_cond_t cond;
+
+/// 初始化，cond: 条件变量的地址，attr: 条件变量属性，一般使用默认属性，指定为 NULL
+int pthread_cond_init(pthread_cond_t *restrict cond,
+      const pthread_condattr_t *restrict attr);
+/// 销毁释放资源        
+int pthread_cond_destroy(pthread_cond_t *cond);
+```
+### 5.2 线程阻塞
+- 在阻塞线程时候，如果线程已经对互斥锁 mutex 上锁，那么会`将这把锁打开`，这样做是为了避免死锁
+- 当线程`解除阻塞`的时候，函数内部会帮助这个线程再次将这个 mutex 互斥锁锁上，继续向下访问临界区
+```
+// 线程阻塞函数, 哪个线程调用这个函数, 哪个线程就会被阻塞
+int pthread_cond_wait(pthread_cond_t *restrict cond, pthread_mutex_t *restrict mutex);
+
+/// 表示的时间是从1971.1.1到某个时间点的时间, 总长度使用秒/纳秒表示
+struct timespec {
+	time_t tv_sec;      /* Seconds */
+	long   tv_nsec;     /* Nanoseconds [0 .. 999999999] */
+};
+/// 将线程阻塞一定的时间长度, 时间到达之后, 线程就解除阻塞了
+int pthread_cond_timedwait(pthread_cond_t *restrict cond,
+           pthread_mutex_t *restrict mutex, const struct timespec *restrict abstime);
+```
+### 5.3 线程唤醒
+```
+// 唤醒阻塞在条件变量上的线程, 至少有一个被解除阻塞
+int pthread_cond_signal(pthread_cond_t *cond);
+// 唤醒阻塞在条件变量上的线程, 被阻塞的线程全部解除阻塞
+int pthread_cond_broadcast(pthread_cond_t *cond);
+```
+
+### 5.4 生产者消费者模型
+参考cond.cc
