@@ -84,5 +84,35 @@ int pthread_cond_signal(pthread_cond_t *cond);
 int pthread_cond_broadcast(pthread_cond_t *cond);
 ```
 
-### 5.4 生产者消费者模型
-参考cond.cc
+### 5.4 条件变量
+生产者消费者模型，参考cond.cc
+
+### 5.5 信号量（信号灯）
+信号量主要`阻塞线程`，不能完全保证线程安全，如果要保证线程安全，需要`信号量和互斥锁一起使用`。
+```
+#include <semaphore.h>
+sem_t sem;
+
+// 初始化信号量/信号灯, 
+/// 参数：pshared：0：线程同步;非 0：进程同步. value：初始化当前信号量拥有的资源数（>=0），如果资源数为 0，线程就会被阻塞了。
+int sem_init(sem_t *sem, int pshared, unsigned int value);
+
+// 资源释放, 线程销毁之后调用这个函数即可
+// 参数 sem 就是 sem_init() 的第一个参数            
+int sem_destroy(sem_t *sem);
+
+// 参数 sem 就是 sem_init() 的第一个参数  
+// 函数被调用sem中的资源就会被消耗1个, 资源数-1
+int sem_wait(sem_t *sem);
+int sem_trywait(sem_t *sem);
+int sem_timedwait(sem_t *sem, const struct timespec *abs_timeout);
+```
+
+#### 消费者生产者模型
+```
+// 消费一个信号灯
+sem_wait(&sem);
+// 添加一个信号灯
+sem_post(&sem);
+```
+将cond.cc 改为信号量形式 sem.cc
